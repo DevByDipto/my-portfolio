@@ -1,6 +1,11 @@
 import { Button } from "@/components/ui/button";
+import { getServerSession } from "next-auth";
+import Link from "next/link";
+import LogoutButton from "./LogoutButton";
 
-export default function Navbar() {
+export default async function Navbar() {
+  const session = await getServerSession()
+  
   return (
     <nav className="flex justify-between items-center p-4 bg-gray-800 text-white">
       <div className="text-xl font-bold">MyApp</div>
@@ -8,6 +13,13 @@ export default function Navbar() {
         <Button variant="ghost">Home</Button>
         <Button variant="ghost">About</Button>
         <Button variant="ghost">Contact</Button>
+        {
+          session?.user ? <LogoutButton></LogoutButton> :
+          <>
+          <Link href={'/auth/login'}> Login</Link> 
+          {/* <Link href={'/auth/register'}> register</Link> */}
+            </>
+        }
       </div>
     </nav>
   );
