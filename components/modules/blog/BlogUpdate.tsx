@@ -26,30 +26,43 @@ import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { IBlog } from "@/app/types/blog.type";
+import { toast } from "sonner";
+import { updateBlog } from "@/app/(commonLayout)/blog/action";
 
 // BlogUpdate form schema
 const blogSchema = z.object({
-  title: z.string().min(3, { message: "Title must be at least 3 characters" }),
+  title: z.string().min(2, { message: "Title must be at least 2 characters" }),
   content: z.string().min(10, { message: "Content must be at least 10 characters" }),
   coverImage: z.string().url({ message: "Cover Image must be a valid URL" }).optional(),
 });
 
-export function BlogUpdate() {
+export  function BlogUpdate({blog}:{blog:IBlog}) {
   const [dialogOpen, setDialogOpen] = useState(false);
+console.log(blog?.title);
 
   const form = useForm<z.infer<typeof blogSchema>>({
     resolver: zodResolver(blogSchema),
     defaultValues: {
-      title: "",
-      content: "",
-      coverImage: "",
+      title: blog?.title,
+      content: blog?.content,
+      coverImage: blog?.coverImage,
     },
   });
 
   const onSubmit = async (data: z.infer<typeof blogSchema>) => {
-    console.log("Update Blog Data:", data);
-    // ekhane API call kore blog update kora jabe
-  };
+    console.log({data});
+    
+  try {
+    await updateBlog(blog?.id as string, data);
+    setDialogOpen(false)
+    toast.success("Blog updated successfully!");
+  } catch (error) {
+    console.error(error);
+    toast.error("Blog update failed!");
+  }
+};
+
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -123,3 +136,4 @@ export function BlogUpdate() {
     </Dialog>
   );
 }
+
